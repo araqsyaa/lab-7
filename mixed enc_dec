@@ -1,0 +1,96 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Encryptor {
+private:
+    string text;
+    int key;
+
+public:
+    Encryptor(string t, int s) : text(t), key(s) {}
+
+    string encrypt() {
+        string result = "";
+        for (int i = 0; i < text.length(); i++) {
+            result += char(int(text[i] + key) % 128);
+        }
+        cout<<"Encrypted (with key) message: "<<result<<endl;
+        return result;
+    }
+
+    string decrypt(string encryptedText) {
+        string result = "";
+        for (int i = 0; i < encryptedText.length(); i++) {
+            result += char(int(encryptedText[i] - key + 128) % 128);
+        }
+         cout<<"Decrypted (with key) message: "<<result<<endl;
+        return result;
+    }
+};
+
+class RunLengthEncoding {
+public:
+    string encode(string input) {
+        string encoded = "";
+        int n = input.length();
+
+        for (int i = 0; i < n; i++) {
+            unsigned char count = 1;
+            while (i < n - 1 && input[i] == input[i + 1] && count < 255) {
+                count++;
+                i++;
+            }
+            encoded += input[i];
+            encoded += count;
+        }
+
+        return encoded;
+    }
+
+    string decode(string encoded) {
+        string decoded = "";
+        int n = encoded.length();
+
+        for (int i = 0; i < n; i++) {
+            char currentChar = encoded[i];
+            unsigned char count = encoded[++i];
+            decoded.append(count, currentChar);
+        }
+
+        return decoded;
+    }
+};
+
+int main() {
+    string text;
+    int key;
+
+    cout << "Enter the message to encrypt: ";
+    getline(cin, text);
+    cout << "Enter the key: ";
+    cin >> key;
+
+    Encryptor encryptor(text, key);
+    string encrypted = encryptor.encrypt();
+
+    RunLengthEncoding rle;
+    string compressed = rle.encode(encrypted);
+
+    cout << "Compressed Encrypted Message: ";
+    for (unsigned char c : compressed) {
+        cout << static_cast<int>(c) << ' ';
+    }
+    cout << endl;
+
+    string decompressed = rle.decode(compressed);
+     cout << "Decompressed decrypted Message: ";
+    for (unsigned char c : decompressed) {
+        cout << static_cast<int>(c) << ' ';
+    }
+    cout << endl;
+    
+    string decrypted = encryptor.decrypt(decompressed);
+
+    return 0;
+}
